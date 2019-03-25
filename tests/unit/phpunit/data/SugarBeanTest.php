@@ -570,7 +570,8 @@ class SugarBeanTest extends SuitePHPUnit_Framework_TestCase
     public function testPopulateDefaultValues()
     {
         $testBean1 = BeanFactory::getBean('Users');
-        ;
+        $origFieldDefs = $testBean1->field_defs;
+
         $testBean1->field_defs = null;
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         $results = $testBean1->populateDefaultValues();
@@ -637,6 +638,8 @@ class SugarBeanTest extends SuitePHPUnit_Framework_TestCase
         ), $bean->field_defs);
         $field = 'test';
         self::assertEquals('', $bean->$field);
+
+        $bean->field_defs = $origFieldDefs;
     }
 
     /**
@@ -2286,6 +2289,11 @@ class SugarBeanTest extends SuitePHPUnit_Framework_TestCase
         $state = new \SuiteCRM\StateSaver();
         $state->pushTable('tracker');
         $state->pushTable('aod_index');
+        $state->pushTable('users');
+        $state->pushGlobals();
+
+        $userFieldDefs = BeanFactory::getBean('Users')->field_defs;
+        $contactFieldDefs = BeanFactory::getBean('Contacts')->field_defs;
 
         // test
         
@@ -2313,7 +2321,7 @@ class SugarBeanTest extends SuitePHPUnit_Framework_TestCase
 
         self::assertEquals($bean, $bean->custom_fields->bean);
         self::assertEquals(false, $bean->new_with_id);
-        
+
 
 
         // test
@@ -2329,7 +2337,7 @@ class SugarBeanTest extends SuitePHPUnit_Framework_TestCase
         $isValidator = new \SuiteCRM\Utility\SuiteValidator();
         self::assertFalse($isValidator->isValidId($results));
 
-        self::assertEquals(true, $bean->in_save);
+        self::assertEquals(false, $bean->in_save);
         self::assertEquals($current_user->id, $bean->modified_user_id);
         self::assertEquals($current_user->user_name, $bean->modified_by_name);
         self::assertEquals(0, $bean->deleted);
@@ -2354,7 +2362,7 @@ class SugarBeanTest extends SuitePHPUnit_Framework_TestCase
         }
         self::assertFalse($isValidator->isValidId($results));
 
-        self::assertEquals(true, $bean->in_save);
+        self::assertEquals(false, $bean->in_save);
         
         self::assertEquals($current_user->id, $bean->modified_user_id);
         
@@ -2393,7 +2401,6 @@ class SugarBeanTest extends SuitePHPUnit_Framework_TestCase
         self::assertFalse($isValidator->isValidId($bean->id));
         self::assertEquals($bean, $bean->custom_fields->bean);
         self::assertEquals(false, $bean->new_with_id);
-        
 
 
         // test
@@ -2433,7 +2440,6 @@ class SugarBeanTest extends SuitePHPUnit_Framework_TestCase
         self::assertFalse($isValidator->isValidId($bean->id));
         self::assertEquals($bean, $bean->custom_fields->bean);
         self::assertEquals(false, $bean->new_with_id);
-        
 
         // test
         $GLOBALS['log']->reset();
@@ -2473,7 +2479,7 @@ class SugarBeanTest extends SuitePHPUnit_Framework_TestCase
         self::assertFalse($isValidator->isValidId($bean->id));
         self::assertEquals($bean, $bean->custom_fields->bean);
         self::assertEquals(false, $bean->new_with_id);
-        
+
 
 
         // test
@@ -2514,7 +2520,7 @@ class SugarBeanTest extends SuitePHPUnit_Framework_TestCase
         self::assertFalse($isValidator->isValidId($bean->id));
         self::assertEquals($bean, $bean->custom_fields->bean);
         self::assertEquals(false, $bean->new_with_id);
-        
+
 
         // test
         $GLOBALS['log']->reset();
@@ -2566,7 +2572,11 @@ class SugarBeanTest extends SuitePHPUnit_Framework_TestCase
         $this->db->query("DELETE FROM email_addresses WHERE email_address LIKE 'testbean1@email.com'");
         
         // clean up
-        
+        BeanFactory::getBean('Users')->field_defs = $userFieldDefs;
+        BeanFactory::getBean('Contacts')->field_defs = $contactFieldDefs;
+
+        $state->popGlobals();
+        $state->popTable('users');
         $state->popTable('aod_index');
         $state->popTable('tracker');
     }

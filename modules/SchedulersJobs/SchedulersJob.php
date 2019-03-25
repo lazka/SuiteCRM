@@ -256,7 +256,7 @@ class SchedulersJob extends Basic
     public function failJob($message = null)
     {
         return $this->resolveJob(self::JOB_FAILURE, $message);
-    }
+}
 
     /**
      * Mark this job as success

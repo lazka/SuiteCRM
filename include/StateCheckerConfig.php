@@ -136,8 +136,8 @@ class StateCheckerConfig
      *
      * @var integer
      */
-    protected static $testStateCheckMode = self::RUN_PER_CLASSES;
-    
+    protected static $testStateCheckMode = self::RUN_PER_TESTS;
+
     /**
      * Test using StateChecker
      * (Slow working but give more information about the error location, use in development only)
